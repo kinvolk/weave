@@ -35,6 +35,20 @@ curl -s https://storage.googleapis.com/golang/go#{$go_version}.linux-amd64.tar.g
 SCRIPT
 end
 
+def install_terraform(vm)
+  vm.provision :shell, :inline => <<SCRIPT
+curl -fsS https://releases.hashicorp.com/terraform/0.8.4/terraform_0.8.4_linux_amd64.zip | gunzip > terraform && chmod +x terraform && mv terraform /usr/bin
+SCRIPT
+end
+
+def install_ansible(vm)
+  vm.provision :shell, :inline => <<SCRIPT
+apt-get install -qq -y python-pip python-dev libffi-dev libssl-dev
+pip install -U cffi 
+pip install ansible
+SCRIPT
+end
+
 def tweak_user_env(vm)
   script = <<SCRIPT
 echo 'export GOPATH="${HOME}"' \

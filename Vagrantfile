@@ -36,6 +36,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   install_build_deps config.vm, pkgs
   install_go_toochain config.vm
+  install_terraform config.vm
+  install_ansible config.vm
   tweak_user_env config.vm
   tweak_docker_daemon config.vm
   cleanup config.vm
