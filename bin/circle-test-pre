@@ -10,5 +10,4 @@ if [ -n "$TEST_AND_PUBLISH" ] ; then
     make COVERAGE=true RM= all
 
     cd $SRCDIR/test
-    [ -z "$SECRET_PASSWORD" ] || (./gce.sh setup && eval $(./gce.sh hosts) && ./setup.sh)
 fi
