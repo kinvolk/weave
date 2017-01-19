@@ -27,7 +27,7 @@ PLAYBOOK=${PLAYBOOK:-setup_weave-net_test.yml}
 TESTS=${TESTS:-}
 RUNNER_ARGS=${RUNNER_ARGS:-""}
 # Dependencies' versions:
-DOCKER_VERSION=${DOCKER_VERSION:-1.11.2}
+DOCKER_VERSION=${DOCKER_VERSION:-1.13.0}
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-1.5.1}
 KUBERNETES_CNI_VERSION=${KUBERNETES_CNI_VERSION:-0.3.0.1}
 # Google Cloud Platform image's name & usage (only used when PROVIDER is gcp):
