@@ -9,23 +9,16 @@ ip_suffix_base = 10
 
 require '../vagrant-common.rb'
 
-def configure_docker(host, hostname, ip)
-  pkgs = %w(docker-engine ethtool)
-
+def configure_vm(host, hostname, ip)
   host.vm.box = VAGRANT_IMAGE
-
-  host.vm.provision :shell, :inline => "hostnamectl set-hostname "+hostname
   host.vm.network "private_network", ip: ip
+
+  # Tests rely on hostnames instead of IP addresses:
+  host.vm.hostname = hostname
+  host.vm.provision :shell, :inline => "echo #{ip} #{hostname} >> /etc/hosts"
 
   # Disable default Vagrant shared folder, which we don't need:
   host.vm.synced_folder ".", "/vagrant", disabled: true
-
-  host.vm.provision :shell, :inline => "sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D"
-  host.vm.provision :shell, :inline => "echo deb https://apt.dockerproject.org/repo ubuntu-wily main > /etc/apt/sources.list.d/docker.list"
-
-  install_packages host.vm, pkgs
-  tweak_docker_daemon host.vm
-  cleanup host.vm
 end
 
 def configure_resolv_conf(host)
@@ -48,7 +41,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define "host#{i}" do |host|
       ip_suffix = ip_suffix_base + i
       configure_resolv_conf(host)
-      configure_docker(host, "host#{i}", "#{ip_prefix}.#{ip_suffix}")
+      configure_vm(host, "host#{i}", "#{ip_prefix}.#{ip_suffix}")
+      cleanup host.vm
+
+      # Only execute once the Ansible provisioner, when all the machines are up and ready:
+      if i == n_machines
+        host.vm.provision 'ansible' do |ansible|
+          ansible.limit = 'all'  # Disable default limit to connect to all the machines
+          ansible.playbook = '../tools/config_management/setup_weave-net_test.yml'
+        end
+      end
     end
   end
 
